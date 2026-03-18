@@ -1,4 +1,6 @@
-import LoginPage from '../../pageobjects/login.page.js'; // include .js extension
+import LoginPage from '../../pageobjects/login.page.js';
+import { Given, When, Then } from '@cucumber/cucumber';
+import { expect } from 'chai';
 
 const loginPage = new LoginPage();
 
@@ -11,5 +13,5 @@ When('I login with username {string} and password {string}', async (username, pa
 });
 
 Then('I should see dashboard', async () => {
-    await expect(loginPage.dashboard).toBeDisplayed();
+    await expect(await loginPage.dashboard.isDisplayed()).to.be.true;
 });
