@@ -1,4 +1,5 @@
 import { config as baseConfig } from '@wdio/cli';
+
 export const config = {
     //
     // ====================
