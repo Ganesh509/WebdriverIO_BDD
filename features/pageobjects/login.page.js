@@ -1,4 +1,4 @@
-class LoginPage {
+export default class LoginPage {
     get username() { return $('#username'); }
     get password() { return $('#password'); }
     get loginBtn() { return $('#loginBtn'); }
