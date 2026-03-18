@@ -15,4 +15,3 @@ export default class LoginPage {
     }
 }
 
-module.exports = new LoginPage();
