@@ -1,5 +1,6 @@
 import { Given, When, Then } from '@wdio/cucumber-framework';
-import { open, login, isDashboardDisplayed } from '../../pageobjects/login.page';
+// steps.js
+import LoginPage from '../../pageobjects/login.page.js'; // must include .js
 import { expect } from 'chai';
 
 Given('I open the login page', async () => {
