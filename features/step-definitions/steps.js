@@ -1,6 +1,6 @@
 const LoginPage = require('../pageobjects/login.page.js');
 const { Given, When, Then } = require('@cucumber/cucumber');
-const { expect } = require('chai');
+// const { expect } = require('chai');
 
 const loginPage = new LoginPage();
 
