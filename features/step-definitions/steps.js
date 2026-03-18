@@ -1,4 +1,4 @@
-const LoginPage = require('../../pageobjects/login.page.js');
+const LoginPage = require('../pageobjects/login.page.js');
 const { Given, When, Then } = require('@cucumber/cucumber');
 const { expect } = require('chai');
 
