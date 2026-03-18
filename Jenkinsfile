@@ -11,12 +11,6 @@ pipeline {
 
     stages {
         
-        stage('Debug') {
-    steps {
-        sh 'pwd'
-        sh 'ls -R'
-    }
-}
 
         stage('Checkout Code') {
             steps {
