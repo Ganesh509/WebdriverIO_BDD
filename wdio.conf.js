@@ -1,4 +1,4 @@
-export.config = {
+exports.config = {
     //
     // ====================
     // Runner Configuration
