@@ -16,4 +16,4 @@ class LoginPage {
     }
 }
 
-module.exports = LoginPage; // CommonJS export
+module.exports = new LoginPage();

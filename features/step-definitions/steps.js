@@ -1,17 +1,23 @@
-const LoginPage = require('../pageobjects/login.page.js');
-const { Given, When, Then } = require('@cucumber/cucumber');
-// const { expect } = require('chai');
+const { Given, When, Then } = require('@wdio/cucumber-framework');
+const LoginPage = require('../../pageobjects/login.page');
+const { expect } = require('chai');
 
-const loginPage = new LoginPage();
-
-Given('I open login page', async () => {
-    await loginPage.open();
+Given('I open the login page', async () => {
+    await LoginPage.open();
 });
 
 When('I login with username {string} and password {string}', async (username, password) => {
-    await loginPage.login(username, password);
+    // Page Object handles typing and clicking
+    await LoginPage.login(username, password);
 });
 
-Then('I should see dashboard', async () => {
-    await expect(await loginPage.dashboard.isDisplayed()).to.be.true;
+Then('I should see the dashboard', async () => {
+    try {
+        const isDisplayed = await LoginPage.isDashboardDisplayed();
+        expect(isDisplayed).to.be.true;
+    } catch (error) {
+        // Save screenshot if dashboard not displayed
+        await browser.saveScreenshot(`./errorShots/dashboard_failure_${Date.now()}.png`);
+        throw error; // Rethrow to fail the test
+    }
 });
