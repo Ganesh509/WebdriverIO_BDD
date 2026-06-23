@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  chrome:
+    image: selenium/standalone-chrome:latest
+    container_name: wdio-chrome
+    ports:
+      - "4444:4444"
+      - "7900:7900"
+    environment:
+      - VNC_NO_PASSWORD=1
+      - SE_SESSION_REQUEST_TIMEOUT=600
+      - SE_SESSION_RETRY_INTERVAL=5
+    shm_size: 2gb
+
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: wdio-tests
+    depends_on:
+      - chrome
+    environment:
+      - CHROME_HOST=chrome
+      - CHROME_PORT=4444
+    volumes:
+      - .:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    command: npm test
+
+volumes:
+  node_modules:
+    driver: local

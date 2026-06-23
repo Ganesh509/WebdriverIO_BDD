@@ -1,74 +1,102 @@
 pipeline {
-    agent any
+  agent any
 
-    tools {
-        nodejs 'node'
+  options {
+    buildDiscarder(logRotator(numToKeepStr: '30'))
+    timeout(time: 1, unit: 'HOURS')
+    timestamps()
+  }
+
+  tools {
+    nodejs 'node'
+  }
+
+  environment {
+    CI = 'true'
+    BASE_URL = 'https://practice.saucedemo.com'
+    LOG_LEVEL = 'warn'
+  }
+
+  stages {
+    stage('Checkout Code') {
+      steps {
+        checkout([
+          $class: 'GitSCM',
+          branches: [[name: '*/main']],
+          userRemoteConfigs: [[url: 'https://github.com/Ganesh509/WebdriverIO_BDD.git']]
+        ])
+      }
     }
 
-    environment {
-        CI = 'true'
+    stage('Install Dependencies') {
+      steps {
+        sh 'npm ci'
+      }
     }
 
-    stages {
-        
+    stage('Code Quality - Lint') {
+      steps {
+        sh 'npm run lint'
+      }
+    }
 
-        stage('Checkout Code') {
-            steps {
-                git branch: 'main', url: 'https://github.com/Ganesh509/WebdriverIO_BDD.git'
-            }
-        }
+    stage('Run Tests - Smoke') {
+      steps {
+        sh '''
+          mkdir -p allure-results
+          npm run test:smoke
+        '''
+      }
+    }
 
-        stage('Install Dependencies') {
-            steps {
-                sh 'npm install'
-            }
-        }
-
-        stage('Run Headless Tests') {
-            steps {
-                sh '''
-                export HEADLESS=true
-                rm -rf allure-results
-                mkdir -p allure-results
-                npm test
-                '''
-            }
-        }
-        post {
-    always {
-      sh 'npm run generate-report'
+    stage('Run Tests - Regression') {
+      when {
+        branch 'main'
+      }
+      steps {
+        sh '''
+          mkdir -p allure-results
+          npm test
+        '''
+      }
     }
   }
 
-        stage('Generate Allure Report') {
-            steps {
-                allure includeProperties: false,
-                       jdk: '',
-                       results: [[path: 'allure-results']]
-            }
-        }
+  post {
+    always {
+      echo 'Generating Allure Report...'
+      script {
+        sh '''
+          if [ -d "allure-results" ]; then
+            npx allure generate allure-results -o allure-report --clean || true
+          fi
+        '''
+      }
+
+      publishAllure(
+        results: [[path: 'allure-results']],
+        reportBuildPolicy: 'ALWAYS'
+      )
+
+      archiveArtifacts artifacts: 'allure-report/**', allowEmptyArchive: true
     }
 
-    post {
-
-        always {
-            echo 'Pipeline completed.'
-        }
-
-        success {
-            echo 'Build SUCCESS ✅'
-        }
-
-        failure {
-            echo 'Build FAILED ❌'
-        }
-
-        unstable {
-            echo 'Build UNSTABLE ⚠️'
-        }
-
-        cleanup {
-            cleanWs()
-        }
+    success {
+      echo '✅ Build SUCCESS'
     }
+
+    failure {
+      echo '❌ Build FAILED'
+      sh 'echo "Pipeline failed on branch ${GIT_BRANCH}"'
+    }
+
+    unstable {
+      echo '⚠️  Build UNSTABLE'
+    }
+
+    cleanup {
+      cleanWs()
+    }
+  }
 }
+
